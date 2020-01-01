@@ -26,10 +26,12 @@ router.post('/register', (req, res, next) => {
 });
 //Authenticate
 router.post('/authenticate', (req, res, next) => {
-
-    const auth = atob(req.body.auth).split(':');
-    const username = auth[0];
-    const password = auth[1];
+   
+    console.log(req.body);
+    //const auth = atob(req.body.auth).split(':');
+    const username = req.body.username;
+    const password = req.body.password;
+  
     User.getUserByUsername(username, (err, user) => {
         if (err) { 
             throw err 
