@@ -75,7 +75,8 @@ app.get('/fpl-bootstrap-static', function (req, res, next) {
 
           // The whole response has been received. Print out the result.
           resp.on('end', () => {
-                  res.send(data);
+                  res.send(JSON.parse(data));
+                  //res.json(data)
           });
 
      }).on("error", (err) => {
@@ -102,7 +103,7 @@ app.get('/fpl-element-summary/:id', function (req, res, next) {
 
           // The whole response has been received. Print out the result.
           resp.on('end', () => {
-               res.send(data);
+               res.send(JSON.parse(data));
           });
 
      }).on("error", (err) => {
