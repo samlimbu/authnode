@@ -60,11 +60,7 @@ app.use('/users', users);
 // })
 
 app.get('/fpl-bootstrap-static', function (req, res, next) {
-
-
      const hostname = 'https://fantasy.premierleague.com/api/bootstrap-static/';
-
-
      https.get(hostname, (resp) => {
           let data = '';
 
@@ -82,9 +78,6 @@ app.get('/fpl-bootstrap-static', function (req, res, next) {
      }).on("error", (err) => {
           console.log("Error: " + err.message);
      });
-
-     //req.end()
-
 });
 
 app.get('/fpl-element-summary/:id', function (req, res, next) {
@@ -112,6 +105,27 @@ app.get('/fpl-element-summary/:id', function (req, res, next) {
 
      //req.end()
 
+});
+
+app.get('/fpl/teams', function (req, res, next) {
+     const hostname = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+     https.get(hostname, (resp) => {
+          let data = '';
+
+          // A chunk of data has been recieved.
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+
+          // The whole response has been received. Print out the result.
+          resp.on('end', () => {
+                  res.send(JSON.parse(data)['teams']);
+                  //res.json(data)
+          });
+
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
 });
 
 app.get('/', (req, res, next) => {
