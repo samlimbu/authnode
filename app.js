@@ -59,14 +59,13 @@ app.use('/users', users);
 //     res.sendFile(path.join(__dirname,'public/index.html'));
 // })
 
-app.get('/fpl', function (req, res, next) {
+app.get('/fpl-bootstrap-static', function (req, res, next) {
 
-     console.log('*****fpl***********');
-     const options = {
-          hostname: 'https://fantasy.premierleague.com/api/bootstrap-static/',
-          method: 'GET'
-     }
-     https.get('https://fantasy.premierleague.com/api/bootstrap-static/', (resp) => {
+
+     const hostname = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+
+
+     https.get(hostname, (resp) => {
           let data = '';
 
           // A chunk of data has been recieved.
@@ -76,7 +75,33 @@ app.get('/fpl', function (req, res, next) {
 
           // The whole response has been received. Print out the result.
           resp.on('end', () => {
-               console.log(JSON.parse(data).explanation);
+                  res.send(data);
+          });
+
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
+
+     //req.end()
+
+});
+
+app.get('/fpl-element-summary/:id', function (req, res, next) {
+
+     console.log('*****fpl***********');
+     const hostname = `https://fantasy.premierleague.com/api/element-summary/${req.params.id}/`;
+     console.log(hostname);
+
+     https.get(hostname, (resp) => {
+          let data = '';
+
+          // A chunk of data has been recieved.
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+
+          // The whole response has been received. Print out the result.
+          resp.on('end', () => {
                res.send(data);
           });
 
@@ -87,6 +112,7 @@ app.get('/fpl', function (req, res, next) {
      //req.end()
 
 });
+
 app.get('/', (req, res, next) => {
      res.send('invalid endpoint');
 });
