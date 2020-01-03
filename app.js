@@ -9,11 +9,6 @@ const categoryRouter = require('./routes/category');
 const users = require('./routes/users');
 const https = require('https');
 
-
-
-
-
-
 mongoose.connect(config.database);
 //on connection
 mongoose.connection.on('connected', () => {
@@ -29,6 +24,10 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passport')(passport);
+
+setInterval(()=>{
+ console.log('server online')
+},10000)
 
 app.get('/test', function (req, res, next) {
 
@@ -59,33 +58,8 @@ app.use('/users', users);
 //     res.sendFile(path.join(__dirname,'public/index.html'));
 // })
 
-app.get('/fpl-bootstrap-static', function (req, res, next) {
+app.get('/fpl/bootstrap-static', function (req, res, next) {
      const hostname = 'https://fantasy.premierleague.com/api/bootstrap-static/';
-     https.get(hostname, (resp) => {
-          let data = '';
-
-          // A chunk of data has been recieved.
-          resp.on('data', (chunk) => {
-               data += chunk;
-          });
-
-          // The whole response has been received. Print out the result.
-          resp.on('end', () => {
-                  res.send(JSON.parse(data));
-                  //res.json(data)
-          });
-
-     }).on("error", (err) => {
-          console.log("Error: " + err.message);
-     });
-});
-
-app.get('/fpl-element-summary/:id', function (req, res, next) {
-
-     console.log('*****fpl***********');
-     const hostname = `https://fantasy.premierleague.com/api/element-summary/${req.params.id}/`;
-     console.log(hostname);
-
      https.get(hostname, (resp) => {
           let data = '';
 
@@ -97,32 +71,104 @@ app.get('/fpl-element-summary/:id', function (req, res, next) {
           // The whole response has been received. Print out the result.
           resp.on('end', () => {
                res.send(JSON.parse(data));
+               //res.json(data)
           });
 
      }).on("error", (err) => {
           console.log("Error: " + err.message);
      });
-
      //req.end()
+});
 
+app.get('/fpl/element-summary/:id', function (req, res, next) {
+     const hostname = `https://fantasy.premierleague.com/api/element-summary/${req.params.id}/`;
+     console.log(hostname);
+     https.get(hostname, (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+          resp.on('end', () => {
+               res.send(JSON.parse(data));
+          });
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
 });
 
 app.get('/fpl/teams', function (req, res, next) {
      const hostname = 'https://fantasy.premierleague.com/api/bootstrap-static/';
      https.get(hostname, (resp) => {
           let data = '';
-
-          // A chunk of data has been recieved.
           resp.on('data', (chunk) => {
                data += chunk;
           });
-
-          // The whole response has been received. Print out the result.
           resp.on('end', () => {
-                  res.send(JSON.parse(data)['teams']);
-                  //res.json(data)
+               res.send(JSON.parse(data)['teams']);
           });
 
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
+});
+
+app.get('/fpl/elements', function (req, res, next) {
+     const hostname = `https://fantasy.premierleague.com/api/bootstrap-static/`;
+     https.get(hostname, (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+          resp.on('end', () => {
+               res.send(JSON.parse(data)['elements']);
+          });
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
+});
+
+app.get('/fpl/element/:id/info', function (req, res, next) {
+     const hostname = `https://fantasy.premierleague.com/api/bootstrap-static/`;
+     https.get(hostname, (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+          resp.on('end', () => {
+              let tempELEMENTS = JSON.parse(data)['elements'];
+               let tempElement = tempELEMENTS.find(x => x['id'] == req.params.id);
+               res.send(tempElement);
+          });
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
+});
+
+app.get('/fpl/element/:id/history', function (req, res, next) {
+     const hostname = `https://fantasy.premierleague.com/api/element-summary/${req.params.id}/`;
+     https.get(hostname, (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+          resp.on('end', () => {
+               res.send(JSON.parse(data)['history']);
+          });
+     }).on("error", (err) => {
+          console.log("Error: " + err.message);
+     });
+});
+
+app.get('/fpl/element/:id/fixtures', function (req, res, next) {
+     const hostname = `https://fantasy.premierleague.com/api/element-summary/${req.params.id}/`;
+     https.get(hostname, (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => {
+               data += chunk;
+          });
+          resp.on('end', () => {
+               res.send(JSON.parse(data)['fixtures']);
+          });
      }).on("error", (err) => {
           console.log("Error: " + err.message);
      });
