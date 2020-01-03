@@ -9,38 +9,51 @@ var atob = require('atob');
 
 
 router.post('/register', (req, res, next) => {
-    let newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password
-    });
-    User.addUser(req.body, (err, user) => {
+
+    User.getUserByUsername(req.body.username, (err, user) => {
+        console.log(req.body);
         if (err) {
-            res.json({ success: false, msg: 'failed to register user' });
+            throw err
         }
-        else {
-            res.json({ success: true, msg: 'user registered' });
+        if (user) {
+            return res.json({ success: false, msg: 'Username already registered' });
+        } else if (!user) {
+            let newUser = new User({
+                name: req.body.name,
+                email: req.body.email,
+                username: req.body.username,
+                id: req.body.id,
+                password: req.body.password
+            });
+            User.addUser(newUser, (err, user) => {
+                if (err) {
+                    res.json({ success: false, msg: 'failed to register user' });
+                }
+                else {
+                    res.json({ success: true, msg: 'user registered' });
+                }
+            });
         }
+
     });
 });
 //Authenticate
 router.post('/authenticate', (req, res, next) => {
-   
+
     console.log(req.body);
     //const auth = atob(req.body.auth).split(':');
     const username = req.body.username;
     const password = req.body.password;
-  
+
     User.getUserByUsername(username, (err, user) => {
-        if (err) { 
-            throw err 
+        if (err) {
+            throw err
         }
         if (!user) {
             return res.json({ success: false, msg: 'User not found' });
         }
         User.comparePassword(password, user.password, (err, isMatch) => {
-     
+
             if (err) throw err;
             if (isMatch) {
                 const token = jwt.sign({ data: user }, config.secret, {
@@ -68,8 +81,19 @@ router.post('/authenticate', (req, res, next) => {
     });
 });
 //profile 
-router.get('/status', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    res.json({ user: req.user });
+router.post('/profile', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    console.log('/profile',req.body);
+    User.getUserByUsername(req.body.username, (err, user) => {
+        if (err) {
+            throw err
+        }
+        if (!user) {
+            return res.json({ success: false, msg: 'User not found' });
+        } else if (user){
+            res.json({ user: user });
+        }
+
+    });
 });
 //change password
 router.post('/change_password', (req, res, next) => {
@@ -97,7 +121,7 @@ router.post('/change_password', (req, res, next) => {
                     email: user.email,
                     password: newPassword
                 });
-                User.changePassword(newUser,  (err, user) => {
+                User.changePassword(newUser, (err, user) => {
                     if (err) {
                         return res.json({ sucess: false, msg: 'failed to change password' });
 
@@ -117,5 +141,8 @@ router.post('/change_password', (req, res, next) => {
 
     });
 });
-
+//passport 
+router.get('/status', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    res.json({ user: req.user });
+});
 module.exports = router;
