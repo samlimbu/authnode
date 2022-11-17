@@ -29,6 +29,6 @@
     "passport-jwt": "*"
   },
   "devDependencies": {
-    "@angular/cli": "^1.7.1"
+    "@angular/cli": "^15.0.0"
   }
 }
